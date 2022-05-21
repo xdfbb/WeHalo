@@ -76,13 +76,13 @@ App({
         userInfo: null,
         skin: null,
         roleFlag: false,
-        url: "xxx",//http://localhost:8090
-        BlogName: "xxx",
-        token: "xxx",
+        url: "https://jiaomao.solemountain.cn",
+        BlogName: "叫毛人儿，叫毛事儿，发现南阳本地的新鲜事儿",
+        token: "f3541a0f-6bd4-4fdd-8add-a1d1320c7f6b",
         highlightStyle: "dracula", //代码高亮样式，可用值default,darcula,dracula,tomorrow
-        adminOpenid: "xxx",
-        HaloUser: "xxx",
-        HaloPassword: "xxxxx"
+        adminOpenid: "oY3L80FJLtU-rxykgaekZ6aeEZdo",
+        HaloUser: "xdfbb",
+        HaloPassword: "11291212Ee"
     }
     
 })

@@ -27,5 +27,6 @@
       "provider": "wxa51b9c855ae38f3c"
     }
   },
-  "sitemapLocation": "sitemap.json"
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
 }
