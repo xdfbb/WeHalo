@@ -4,10 +4,12 @@ const app = getApp()
 const jinrishici = require('../../utils/jinrishici.js')
 const request = require('../../utils/request.js');
 let util = require('../../utils/util.js');
-let touchDotX = 0;//X按下时坐标
-let touchDotY = 0;//y按下时坐标
-let interval;//计时器
-let time = 0;//从按下到松开共多少时间*100
+let touchDotX = 0; //X按下时坐标
+let touchDotY = 0; //y按下时坐标
+let interval; //计时器
+let time = 0; //从按下到松开共多少时间*100
+
+
 
 Page({
     data: {
@@ -15,6 +17,7 @@ Page({
         CustomBar: app.globalData.CustomBar,
         Custom: app.globalData.Custom,
         BlogName: app.globalData.BlogName,
+        BlogDesc: app.globalData.BlogDesc,
         HaloUser: app.globalData.HaloUser,
         HaloPassword: app.globalData.HaloPassword,
         miniProgram: app.globalData.miniProgram,
@@ -56,10 +59,55 @@ Page({
         }, {
             colour: 'bg-lightBlue'
         }],
-        categories : [{name:"全部",slug:"all"}],
-        isPasswordShow : false,
-        password : null,
-        secretUrl : null,
+        categories: [{
+            name: "全部",
+            slug: "all"
+        }],
+        isPasswordShow: false,
+        password: null,
+        secretUrl: null,
+        navTabList: [{
+                "text": "叫毛儿",
+                "iconPath": "/image/video-image/logo-jiaomao.png",
+                "selectedIconPath": "/image/video-image/logo-jiaomao.png",
+                "pagePath": "/pages/index/index",
+            },
+            {
+                "text": "精选小程序",
+                "iconPath": "/image/video-image/logo_mini_programm.png",
+                "selectedIconPath": "/image/video-image/logo_mini_programm.png",
+                "pagePath": "/pages/post/post?postId=47",
+            },
+            {
+                "text": "精选公众号",
+                "iconPath": "/image/video-image/wechat.png",
+                "selectedIconPath": "/image/video-image/wechat.png",
+                "pagePath": "/pages/post/post?postId=46",
+            },
+            {
+                "text": "知乎精选",
+                "iconPath": "/image/video-image/logo-zhihu.png",
+                "selectedIconPath": "/image/video-image/logo-zhihu.png",
+                "pagePath": "/pages/post/post?postId=49",
+            },
+            {
+                "text": "抖音精选",
+                "iconPath": "/image/video-image/tik-tok.png",
+                "selectedIconPath": "/image/video-image/tik-tok.png",
+                "pagePath": "/pages/post/post?postId=48",
+            }
+        ],
+    },
+    tabChange(e) {
+        //获取到底部栏元素的下标
+        let index = e.detail.index;
+        this.setData({
+            tabbarIndex: index
+        })
+        wx.navigateTo({
+            url: e.detail.item.pagePath
+        })
+        console.log('tab change', e.detail.index)
     },
     /**
      * 监听屏幕滚动 判断上下滚动
@@ -70,7 +118,7 @@ Page({
         })
     },
     //事件处理函数
-    bindViewTap: function() {
+    bindViewTap: function () {
         wx.navigateTo({
             url: '../logs/logs'
         })
@@ -98,9 +146,9 @@ Page({
             interstitialAd = wx.createInterstitialAd({
                 adUnitId: 'adunit-f117e72a7c599593'
             })
-            interstitialAd.onLoad(() => { })
-            interstitialAd.onError((err) => { })
-            interstitialAd.onClose(() => { })
+            interstitialAd.onLoad(() => {})
+            interstitialAd.onError((err) => {})
+            interstitialAd.onClose(() => {})
         }
         // 在适合的场景显示插屏广告
         if (interstitialAd) {
@@ -111,7 +159,7 @@ Page({
         // 每日诗词
         jinrishici.load(result => {
             // 下面是处理逻辑示例
-            this.setData({ 
+            this.setData({
                 jinrishici: result.data.content
             });
         });
@@ -119,12 +167,13 @@ Page({
         var token = app.globalData.token;
         var params = {
             page: 0,
-            size: 100,//不带参数请求默认10条，又没有查所有文章的接口，所以先暂定100
+            size: 100, //不带参数请求默认10条，又没有查所有文章的接口，所以先暂定100
             sort: 'createTime,desc',
         };
         var paramBanner = {
             page: 0,
-            size: 5,
+            size: 4,
+            categoryId: 10,
             sort: 'visits,desc',
         };
         // @todo 文章列表网络请求API数据
@@ -138,17 +187,20 @@ Page({
         };
         // @todo 获取后台token网络请求API数据
         request.requestPostApi(urlAdminLogin, token, paramAdminLogin, this, this.successAdminLogin, this.failAdminLogin);
-        var that =this;
+        var that = this;
         var urlCategoriesList = app.globalData.url + '/api/content/categories';
         // 查分类
-        request.requestGetApi(urlCategoriesList, token, {sort:'createTime'}, this, function(res){
+        request.requestGetApi(urlCategoriesList, token, {
+            sort: 'createTime'
+        }, this, function (res) {
             res.data.forEach(element => {
                 that.data.categories.push(element)
             });
             that.setData({
-                categories : that.data.categories
+                categories: that.data.categories
             })
         }, null);
+        this.requestTagstData();
     },
 
     getUserProfile: function () {
@@ -157,7 +209,7 @@ Page({
             desc: '用于完善用户资料',
             success: (res) => {
                 if (res.errMsg == "getUserProfile:ok") {
-                    wx.setStorageSync('userInfo',res.userInfo)
+                    wx.setStorageSync('userInfo', res.userInfo)
                     app.globalData.userInfo = res.userInfo
                     that.setData({
                         userInfo: res.userInfo,
@@ -165,7 +217,8 @@ Page({
                     })
                     that.getPermissions()
                 }
-            } ,fail: err => {
+            },
+            fail: err => {
                 wx.showToast({
                     title: '授权后才能体验更多功能哦',
                     icon: 'none',
@@ -177,18 +230,18 @@ Page({
 
     getPermissions: function () {
         var that = this;
-            wx.cloud.callFunction({
-                name: 'get_wx_context',
-                success(res) {
-                    wx.setStorageSync('openid',res.result.openid)
-                    var role = res.result.openid == that.data.adminOpenid ? '管理员':'游客'
-                    app.globalData.roleFlag = res.result.openid == that.data.adminOpenid;
-                    that.setData({
-                        Role: role,
-                        roleFlag: res.result.openid == that.data.adminOpenid,
-                    });
-                },
-            })
+        wx.cloud.callFunction({
+            name: 'get_wx_context',
+            success(res) {
+                wx.setStorageSync('openid', res.result.openid)
+                var role = res.result.openid == that.data.adminOpenid ? '管理员' : '游客'
+                app.globalData.roleFlag = res.result.openid == that.data.adminOpenid;
+                that.setData({
+                    Role: role,
+                    roleFlag: res.result.openid == that.data.adminOpenid,
+                });
+            },
+        })
     },
 
     DotStyle(e) {
@@ -273,23 +326,23 @@ Page({
             postList: [],
         });
         var slug = e.currentTarget.dataset.slug;
-        var url = slug != 'all'? "/api/content/categories/"+slug+"/posts" : "/api/content/posts";
+        var url = slug != 'all' ? "/api/content/categories/" + slug + "/posts" : "/api/content/posts";
         var urlPostList = app.globalData.url + url;
         var token = app.globalData.token;
         var params = {
             size: 100,
             sort: 'createTime,desc',
-            password : wx.getStorageSync('password'),
+            password: wx.getStorageSync('password'),
         };
         //@todo 文章内容网络请求API数据
         request.requestGetApi(urlPostList, token, params, this, this.successPostList, this.failPostList);
         this.setData({
             TabCur: e.currentTarget.dataset.id,
             scrollLeft: (e.currentTarget.dataset.id - 1) * 60,
-            secretUrl : slug
+            secretUrl: slug
         });
     },
-    
+
     switchSex: function (e) {
         // console.warn(e.detail.value);
         app.globalData.skin = e.detail.value
@@ -297,7 +350,7 @@ Page({
         this.setData({
             skin: e.detail.value
         });
-    }, 
+    },
     // 触摸开始事件
     touchStart: function (e) {
         touchDotX = e.touches[0].pageX; // 获取触摸时的原点
@@ -350,7 +403,7 @@ Page({
     },
 
     //获取随机数
-    randomNum: function() {
+    randomNum: function () {
         var num = Math.floor(Math.random() * 10);
         this.setData({
             randomNum: num
@@ -395,33 +448,33 @@ Page({
      */
     successPostList: function (res, selfObj) {
         var that = this;
-        if(res.status != 403){
-        var list = res.data.content;
-        for (let i = 0; i < list.length; ++i) {
-            list[i].createTime = util.customFormatTime(list[i].createTime, 'Y.M.D');
-            if (list[i].title.length > 10) {
-                list[i].title = list[i].title.substring(0, 14) + '...'
+        if (res.status != 403) {
+            var list = res.data.content;
+            for (let i = 0; i < list.length; ++i) {
+                list[i].createTime = util.customFormatTime(list[i].createTime, 'Y.M.D');
+                if (list[i].title.length > 10) {
+                    list[i].title = list[i].title.substring(0, 14) + '...'
+                }
             }
+            that.setData({
+                postList: res.data.content,
+                moreFlag: res.data.content == "",
+                pages: res.data.pages,
+                noPostTitle: "作者会努力更新文章的 . . ."
+            });
+        } else {
+            that.setData({
+                moreFlag: true,
+                isPasswordShow: true,
+                noPostTitle: "该列表为私密列表，请输入访问密码后访问"
+            });
+            wx.showToast({
+                title: '请输入正确密码',
+                icon: 'none',
+                duration: 2000,
+                mask: true
+            })
         }
-        that.setData({
-            postList: res.data.content,
-            moreFlag: res.data.content == "",
-            pages: res.data.pages,
-            noPostTitle : "作者会努力更新文章的 . . ."
-        });
-    }else{
-        that.setData({
-            moreFlag : true,
-            isPasswordShow : true,
-            noPostTitle : "该列表为私密列表，请输入访问密码后访问"
-        });
-        wx.showToast({
-            title: '请输入正确密码',
-            icon: 'none',
-            duration: 2000,
-            mask: true
-          })
-    }
     },
     /**
      * 文章列表请求--接口调用失败处理
@@ -453,7 +506,7 @@ Page({
     /**
      * 搜索文章模块
      */
-    Search: function(e) {
+    Search: function (e) {
         var content = e.detail.value.replace(/\s+/g, '');
         // console.log(content);
         var that = this;
@@ -503,36 +556,69 @@ Page({
     },
 
     /**
-    * 用户点击右上角分享
-    */
+     * 获取Tags列表
+     */
+    requestTagstData: function (e) {
+        var urlTags = app.globalData.url + '/api/admin/tags'; //读取首页背景图地址
+        var token = app.globalData.token;
+        var params = {};
+        request.requestGetApi(urlTags, token, params, this, this.successTags, this.failTags);
+    },
+    /**
+     * 成功获取tags列表
+     */
+
+    successTags: function (res, selfObj) {
+        var that = this;
+        if (res.data) {
+            for (var item of res.data) {
+                if ('小程序首页背景'.indexOf(item.name) > -1) {
+                    that.setData({
+                        backgroundimgurl: item.thumbnail
+                    })
+                    break;
+                }
+            }
+        }
+    },
+
+    /**
+     * 获取tags列表错误
+     */
+    failTags: function (res, selfObj) {
+        console.error('failTags', res)
+    },
+
+    /**
+     * 用户点击右上角分享
+     */
     onShareAppMessage: function () {
         return {
-            title: this.data.jinrishici,
+            title: this.data.BlogDesc,
             path: '/pages/index/index',
-            imageUrl: 'https://image.aquan.run/poster.jpg',
+            imageUrl: 'https://jiaomao.solemountain.cn/upload/2022/06/%E4%BA%92%E8%81%94%E7%BD%91%E7%83%AD%E7%82%B9%E8%A6%81%E9%97%BB%E6%96%B0%E9%97%BB%E8%BF%BD%E8%B8%AA.png',
         }
     },
     hidePasswordModal(e) {
         this.setData({
-          isPasswordShow: false
+            isPasswordShow: false
         })
     },
-    clickPassword (e){
-
+    clickPassword(e) {
         this.setData({
             isPasswordShow: false
         })
-        wx.setStorageSync('password',this.data.password)
+        wx.setStorageSync('password', this.data.password)
         this.randomNum();
         this.setData({
             postList: [],
         });
-        var urlPostList = app.globalData.url + "/api/content/categories/"+this.data.secretUrl+"/posts";
+        var urlPostList = app.globalData.url + "/api/content/categories/" + this.data.secretUrl + "/posts";
         var token = app.globalData.token;
         var params = {
             size: 100,
             sort: 'createTime,desc',
-            password : wx.getStorageSync('password')
+            password: wx.getStorageSync('password')
         };
         //@todo 文章内容网络请求API数据
         request.requestGetApi(urlPostList, token, params, this, this.successPostList, this.failPostList);
@@ -541,11 +627,10 @@ Page({
             scrollLeft: (e.currentTarget.dataset.id - 1) * 60
         });
     },
-    inputPassword(e){
+    inputPassword(e) {
         this.setData({
             password: e.detail.value
         })
     }
-    
-})
 
+})

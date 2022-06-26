@@ -1,4 +1,4 @@
-const app = getApp()
+const app = getApp();
 Component({
   /**
    * 组件的一些选项
@@ -25,7 +25,7 @@ Component({
     },
     bgImage: {
       type: String,
-      default: ''
+      default:''
     },
   },
   /**
@@ -43,11 +43,6 @@ Component({
     BackPage() {
       wx.navigateBack({
         delta: 1
-      }).catch(error => {
-        console.info("error", error)
-        wx.reLaunch({
-          url: '/pages/index/index',
-        })
       });
     },
     toHome(){

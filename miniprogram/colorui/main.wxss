@@ -3251,7 +3251,7 @@ scroll-view.cu-steps .cu-item {
 }
 
 .padding {
-	padding: 30rpx;
+	padding: 10rpx;
 }
 
 .padding-lg {
@@ -3953,6 +3953,10 @@ scroll-view.cu-steps .cu-item {
 
 .text-center {
 	text-align: center;
+}
+
+.text-bottom {
+	vertical-align:bottom ;
 }
 
 .text-content {

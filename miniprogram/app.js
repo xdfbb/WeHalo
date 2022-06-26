@@ -1,4 +1,5 @@
 //app.js
+
 App({
     onLaunch: function() {
         if (!wx.cloud) {
@@ -26,9 +27,13 @@ App({
         wx.getSystemInfo({
             success: e => {
                 this.globalData.StatusBar = e.statusBarHeight;
-                let custom = wx.getMenuButtonBoundingClientRect();
-                this.globalData.Custom = custom;
-                this.globalData.CustomBar = custom.bottom + custom.top - e.statusBarHeight;
+                let capsule = wx.getMenuButtonBoundingClientRect();
+                if (capsule) {
+                     this.globalData.Custom = capsule;
+                    this.globalData.CustomBar = capsule.bottom + capsule.top - e.statusBarHeight;
+                } else {
+                    this.globalData.CustomBar = e.statusBarHeight + 50;
+                }
             }
         })
 
@@ -77,7 +82,8 @@ App({
         skin: null,
         roleFlag: false,
         url: "https://jiaomao.solemountain.cn",
-        BlogName: "叫毛人儿，叫毛事儿，发现南阳本地的新鲜事儿",
+        BlogName: "叫毛儿",
+        BlogDesc: "叫毛人儿，叫毛事儿，发现南阳新鲜事儿！",
         token: "f3541a0f-6bd4-4fdd-8add-a1d1320c7f6b",
         highlightStyle: "dracula", //代码高亮样式，可用值default,darcula,dracula,tomorrow
         adminOpenid: "oY3L80FJLtU-rxykgaekZ6aeEZdo",

@@ -17,12 +17,13 @@
   margin-right: 120rpx;
   border-width: 20rpx;
   border-style: solid;
-  border-color:  transparent transparent #59b4ff transparent;
+  border-color:  transparent transparent #e54d42 transparent;
 }
 .body {
-  background-color: #59b4ff;
-  box-shadow: 0 10rpx 20rpx -10rpx #59b4ff;
+  background-color: #e54d42;
+  box-shadow: 0 10rpx 20rpx -10rpx #0f0e0e;
   border-radius: 12rpx;
+  border-width: 5rpx;
   display: flex;
   align-items: center;
   justify-content: center;
