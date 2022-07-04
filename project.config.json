@@ -2,14 +2,10 @@
     "miniprogramRoot": "miniprogram/",
     "cloudfunctionRoot": "cloudfunctions/",
     "description": "项目配置文件，详见文档：https://developers.weixin.qq.com/miniprogram/dev/devtools/projectconfig.html",
-    "packOptions": {
-        "ignore": [],
-        "include": []
-    },
     "setting": {
         "urlCheck": true,
-        "es6": true,
-        "enhance": false,
+        "es6": false,
+        "enhance": true,
         "postcss": true,
         "preloadBackgroundData": false,
         "minified": true,
@@ -24,82 +20,40 @@
         "checkSiteMap": true,
         "uploadWithSourceMap": true,
         "compileHotReLoad": false,
+        "lazyloadPlaceholderEnable": false,
         "useMultiFrameRuntime": true,
-        "useApiHook": true,
-        "useApiHostProcess": false,
         "babelSetting": {
             "ignore": [],
             "disablePlugins": [],
             "outputPath": ""
         },
         "enableEngineNative": false,
-        "bundle": false,
         "useIsolateContext": true,
-        "useCompilerModule": false,
-        "userConfirmedUseCompilerModuleSwitch": false,
         "userConfirmedBundleSwitch": false,
         "packNpmManually": false,
         "packNpmRelationList": [],
         "minifyWXSS": true,
-        "lazyloadPlaceholderEnable": false,
-        "useStaticServer": true,
-        "showES6CompileOption": false,
         "disableUseStrict": false,
         "minifyWXML": true,
-        "useCompilerPlugins": false
+        "showES6CompileOption": false,
+        "useCompilerPlugins": false,
+        "useStaticServer": true,
+        "ignoreUploadUnusedFiles": true
     },
     "compileType": "miniprogram",
-    "libVersion": "2.17.0",
-    "appid": "wx6add24772443d174",
-    "projectname": "meow",
     "simulatorType": "wechat",
     "simulatorPluginLibVersion": {},
-    "condition": {
-        "miniprogram": {
-            "list": [
-                {
-                    "name": "WeHalo",
-                    "pathName": "pages/wehalo/wehalo",
-                    "query": "",
-                    "scene": null
-                },
-                {
-                    "name": "仪表盘",
-                    "pathName": "pages/halo/halo",
-                    "query": "",
-                    "scene": null
-                },
-                {
-                    "name": "POST",
-                    "pathName": "pages/post/post",
-                    "query": "postId=15",
-                    "scene": null
-                },
-                {
-                    "name": "关注公众号",
-                    "pathName": "pages/index/index",
-                    "query": "",
-                    "scene": 1011
-                },
-                {
-                    "name": "Friends",
-                    "pathName": "pages/friends/friends",
-                    "query": "",
-                    "scene": null
-                },
-                {
-                    "name": "journal",
-                    "pathName": "pages/journal/journal",
-                    "query": "",
-                    "scene": null
-                }
-            ]
-        }
-    },
     "srcMiniprogramRoot": "miniprogram/",
     "editorSetting": {
         "tabIndent": "insertSpaces",
         "tabSize": 4
     },
-    "cloudfunctionTemplateRoot": "cloudfunctionTemplate/"
+    "cloudfunctionTemplateRoot": "cloudfunctionTemplate/",
+    "condition": {},
+    "libVersion": "2.24.6",
+    "packOptions": {
+        "ignore": [],
+        "include": []
+    },
+    "appid": "wx6add24772443d174"
 }

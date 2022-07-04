@@ -1,12 +1,7 @@
 {
     "pages": [
         "pages/index/index",
-        "pages/wehalo/wehalo",
-        "pages/halo/halo",
-        "pages/post/post",
-        "pages/friends/friends",
-        "pages/journal/journal",
-        "pages/photos/photos"
+        "pages/post/post"
     ],
     "window": {
         "backgroundTextStyle": "light",
@@ -19,9 +14,7 @@
         "cu-custom": "/colorui/components/cu-custom",
         "wh-typeWriter": "/components/typeWriter/wh-typeWriter",
         "wh-authorCard": "/components/authorCard/wh-authorCard",
-        "wh-addTips": "/components/addTips/wh-addTips",
-        "mp-cells": "weui-miniprogram/cells/cells",
-        "mp-cell": "weui-miniprogram/cell/cell"
+        "wh-addTips": "/components/addTips/wh-addTips"
     },
     "useExtendedLib": {
         "weui": true

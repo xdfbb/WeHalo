@@ -1,27 +1,33 @@
 <scroll-view scroll-y class="DrawerPage" scroll-with-animation="true" bindscrolltolower="touchBottom" style="background-color: {{skin?'#030852':'#ffffff'}};height:{{windowHeight}}px;">
-
-    <cu-custom bgColor="bg-lightGrey" isBack="{{false}}" isCustom="{{true}}" isNav="{{false}}">
+    <cu-custom bgColor="bg-{{bgColor}}" isBack="{{false}}" isCustom="{{true}}" isNav="{{false}}">
         <view slot="backText">返回</view>
-        <view slot="content" class="text-shadow-meows">
-            <!-- <text class="text-white text-bold">{{postId}}</text> -->
-            <!-- <text class="text-white text-bold">如何写出无法维护的代码</text> -->
-        </view>
     </cu-custom>
-    <block wx:if="{{wechatAcc||wechatApplet||zhihu||douyin}}">
-        <image style="width:100%; height: 180px;" src="{{postThumbnail}}" mode="aspectFit">
-        </image>
+    <block wx:if="{{toolBox}}">
+        <wh-addTips text="点击「添加“叫毛儿”到我的小程序」，下次不迷路！" duration="5"></wh-addTips>
     </block>
+    <view wx:if="{{wechatAcc||wechatApplet||zhihu||douyin}}">
+        <image mode="widthFix" style="width: 100%;margin-top:0px;" id='{{postThumbnail}}' src="{{postThumbnail}}">
+        </image>
+    </view>
 
     <block wx:if="{{!(wechatAcc||wechatApplet||zhihu||douyin)}}">
         <view class="flex-sub text-center margin-sm">
+            <block wx:if="{{(commercialCategory)}}">
+                <image mode="widthFix" style="width: 100%;margin-top:0px;" bindtap='previewImage' id='{{categories[0].thumbnail}}' src="{{categories[0].thumbnail}}">
+                </image>
+            </block>
+            <block wx:else>
+                <block wx:if="{{toolBox}}">
+                    <image mode="widthFix" style="width: 100%;margin-top:0px;" bindtap='previewImage' id='{{postTitleImg}}' src="{{postTitleImg}}">
+                    </image>
+                </block>
+            </block>
             <view class="text-xxxl">
                 <text class="text-black text-bold">{{postTitle}}</text>
             </view>
         </view>
-
         <view class="margin-lr-sm flex flex-wrap">
             <view class="padding-xs bg-white">
-                <!-- <view class="cu-tag radius sm">Java</view> -->
                 <view class="cu-tag radius" wx:for="{{postTags}}" wx:key="key" wx:for-item="postTags" wx:for-index="index">{{postTags.name}}</view>
             </view>
         </view>
@@ -56,182 +62,265 @@
             </view>
         </view>
     </block>
-    <view class="margin-sm">
-        <view wx:if="{{wechatAcc}}">
-            <text class="text-xxl text-bold text-red">{{postTitle}}</text>
-            <rich-text nodes="{{postContent}}"></rich-text>
-            <mp-cells title="(点击二维码图标放大，然后长按识别)" footer="(点击二维码图标放大，然后长按识别)">
-                <block wx:for="{{wechatAccList}}" wx:key="{{item.appID}}">
-                    <view class="weui-flex">
-                        <view class="weui-flex__item">
-                            <view class="list-cell">
-                                <image style="width: 60px; height: 60px;margin-right: 40px;" src="{{item.image}}" />
-                            </view>
+    <view class="cu-list menu-avatar">
+        <block wx:if="{{wechatAcc}}">
+            <view class="solids-bottom padding-xs flex align-center">
+                <view class="flex-sub">
+                    <view class="solid-bottom padding text-center">
+                        <text class="text-{{bgColor}}">{{postTitle}}</text>
+                    </view>
+                    <view class="padding text-grey text-sm">{{postContent}}</view>
+                </view>
+            </view>
+            <view class='cu-bar solid-bottom bg-white'>
+                <view class='action'>
+                    <text class='text-sm text-{{bgColor}}'> (点击二维码图标放大，然后长按识别即可进入公众号；如果没有二维码请点击‘复制名字’去微信直接搜索)</text>
+                </view>
+            </view>
+            <block wx:for="{{wechatAccList}}" wx:key="{{item.appID}}">
+                <view class="cu-item">
+                    <view class="cu-avatar lg" style="background-image:url({{item.image}});"></view>
+                    <view class="content">
+                        <view class="text-{{bgColor}}">
+                            <text>{{item.name}}</text>
+                            <text class="cu-tag round bg-{{bgColor}} sm">叫毛热度：{{1000-item.ranking}}</text>
                         </view>
-                        <view class="weui-flex__item" style="font-size:x-small; margin-top:1em;">
-                            <view class="list-cell">{{item.name}}</view>
-                            <view style="color: gray;">微信号：{{item.code}}</view>
+                        <view class="text-{{bgColor}} text-xs flex">
+                            微信号：{{item.code}}
                         </view>
-                        <view class="weui-flex__item" style="font-size:x-small; margin-top:1em;text-align: right;">
-                            <view style="color: gray; white-space:nowrap; ">叫毛热度 {{1000-item.ranking}}</view>
+                    </view>
+                    <view class="action">
+                        <view wx:if="{{item.code}}">
+                            <image id="https://open.weixin.qq.com/qr/code?username={{item.code}}" style="width: 96rpx; height: 96rpx;" mode="cover" bindtap='previewImage' src="https://open.weixin.qq.com/qr/code?username={{item.code}}" />
                         </view>
-                        <view class="weui-flex__item">
-                            <view class="list-cell" style="text-align: center; font-size:x-small;margin-left:4em;color: rgb(192, 11, 11);">
-                                <view wx:if="{{item.code}}">
-                                    <image id="https://open.weixin.qq.com/qr/code?username={{item.code}}" style="width: 60px; height: 60px;" mode="cover" bindtap='previewImage' src="https://open.weixin.qq.com/qr/code?username={{item.code}}" />
-                                </view>
-                                <view wx:else>
-                                    <view class="erweima" bindtap="open" data-text="{{item.name}}">
-                                        <rich-text nodes="点击这里复制名字去微信直接搜索"></rich-text>
-                                    </view>
+                        <view wx:else>
+                            <view bindtap="open" data-text="{{item.name}}">
+                                <view class="cu-tag round bg-{{bgColor}}">
+                                    复制
                                 </view>
                             </view>
                         </view>
                     </view>
-                </block>
-            </mp-cells>
-        </view>
-        <view wx:elif="{{wechatApplet}}">
-            <text class="text-xxl text-bold text-red">{{postTitle}}</text>
-            <rich-text nodes="{{postContent}}"></rich-text>
-            <mp-cells title="(点击二维码图标放大，然后长按识别)" footer="(点击二维码图标放大，然后长按识别)">
-                <block wx:for="{{wechatAppletList}}" wx:key="{{item.id}}">
-                    <view class="weui-flex" style="vertical-align: middle;">
-                        <view class="weui-flex__item">
-                            <image style="width: 48px; height: 48px;" src="{{item.image}}" />
-                        </view>
-                        <view class="weui-flex__item" style="padding-top: 2em;">
+                </view>
+            </block>
+        </block>
+        <block wx:elif="{{wechatApplet}}">
+            <view class="solids-bottom padding-xs flex align-center">
+                <view class="flex-sub">
+                    <view class="solid-bottom padding text-center">
+                        <text class="text-{{bgColor}}">{{postTitle}}</text>
+                    </view>
+                    <view class="padding text-grey text-sm">{{postContent}}</view>
+                </view>
+            </view>
+            <view class='cu-bar solid-bottom bg-white'>
+                <view class='action'>
+                    <text class='text-sm text-{{bgColor}}'> (点击'去看看'即可进入相应的小程序)</text>
+                </view>
+            </view>
+            <block wx:for="{{wechatAppletList}}" wx:key="{{item.id}}">
+                <view class="cu-item">
+                    <view class="cu-avatar lg" style="background-image:url({{item.image}});"></view>
+                    <view class="content">
+                        <view class="text-{{bgColor}}">
                             {{item.name}}
+                            <view class="cu-tag round bg-{{bgColor}} sm">叫毛热度：{{1000-item.ranking}}</view>
                         </view>
-                        <view class="weui-flex__item" style="color: gray; white-space:nowrap;text-align: right; padding-top: 2em;">
-                            叫毛热度 {{1000-item.ranking}}
-                        </view>
-                        <view class="weui-flex__item">
-                            <navigator class="btn" target="miniProgram" open-type="navigate" app-id="{{item.appID}}">去看看</navigator>
+                        <view class="text-{{bgColor}} text-xs flex">
+                            微信号：{{item.code}}
                         </view>
                     </view>
-                </block>
-            </mp-cells>
-        </view>
-        <view wx:if="{{douyin}}">
-            <text class="text-xxl text-bold text-red">{{postTitle}}</text>
-            <rich-text nodes="{{postContent}}"></rich-text>
-            <mp-cells title="(点击二维码图标放大，然后长按识别)" footer="(点击二维码图标放大，然后长按识别)">
-                <block wx:for="{{douYinAccList}}" wx:key="{{item.id}}">
-                    <view class="weui-flex">
-                        <view class="weui-flex__item">
-                            <image style="width: 60px; height: 60px;" src="{{item.orgavatar}}" />
+                    <view class="action">
+                        <navigator class="cu-tag round bg-{{bgColor}}" target="miniProgram" open-type="navigate" app-id="{{item.appID}}">去看看</navigator>
+                    </view>
+                </view>
+            </block>
+        </block>
+        <block wx:elif="{{douyin}}">
+            <view class="solids-bottom padding-xs flex align-center">
+                <view class="flex-sub">
+                    <view class="solid-bottom padding text-center">
+                        <text class="text-{{bgColor}}">{{postTitle}}</text>
+                    </view>
+                    <view class="padding text-grey text-sm">{{postContent}}</view>
+                </view>
+            </view>
+            <view class='cu-bar solid-bottom bg-white'>
+                <view class='action'>
+                    <text class='text-sm text-{{bgColor}}'> 小程序内不能直接跳转抖音，(点击二维码图标放大，然后打开抖音扫描)</text>
+                </view>
+            </view>
+            <block wx:for="{{douYinAccList}}" wx:key="{{item.id}}">
+                <view class="cu-item">
+                    <view class="cu-avatar lg" style="background-image:url({{item.orgavatar}});"></view>
+                    <view class="content">
+                        <view class="text-{{bgColor}}">
+                            {{item.douyin_name}}
+                            <view>
+                                <text class="cu-tag round bg-{{bgColor}} sm">{{(item.ranking)/10000}}W 获赞</text>
+                                <text class="cu-tag round bg-{{bgColor}} sm">{{(item.fans_count)/10000}}W 粉丝</text>
+                            </view>
                         </view>
-                        <view class="weui-flex__item">
-                            <view>{{item.douyin_name}}</view>
-                            <view style="color: gray;">抖音号：{{item.douyin_id}}</view>
+                        <view class="text-{{bgColor}} text-xs flex">
+                            抖音号：{{item.douyin_id}}
                         </view>
-                        <view class="weui-flex__item" style="text-align: right;">
-                            <view style="color: gray; white-space:nowrap; ">{{(item.ranking)/10000}}W 获赞</view>
-                            <view style="color: gray; white-space:nowrap; ">{{(item.fans_count)/10000}}W 粉丝</view>
+                    </view>
+                    <view class="action">
+                        <view wx:if="{{item.qrCodeUrl}}">
+                            <image id="{{item.qrCodeUrl}}" style="width: 96rpx; height: 96rpx;" mode="cover" bindtap='previewImage' id='{{item.qrCodeUrl}}' src="{{item.qrCodeUrl}}" />
                         </view>
-                        <view class="weui-flex__item">
-                            <view class="list-cell" style="text-align: center; font-size:x-small;margin-left:4em;color:gray;">
-                                <view wx:if="{{item.qrCodeUrl}}">
-                                    <view style="color: gray; white-space:nowrap; ">打开</view>
-                                    <view style="color: gray; white-space:nowrap; ">抖音扫描</view>
-                                    <image id="{{item.qrCodeUrl}}" style="width: 48px; height: 48px;" mode="cover" bindtap='previewImage' src="{{item.qrCodeUrl}}" />
+                        <view wx:else>
+                            <view bindtap="open" data-text="{{item.name}}">
+                                <view class="text text-xs cu-tag round bg-{{bgColor}} sm">
+                                    点击这里复制名字去抖音直接搜索
                                 </view>
-                                <view wx:else>
-                                    <view class="erweima" bindtap="open" data-text="{{item.name}}">
-                                        <rich-text nodes="点击这里复制名字去抖音直接搜索"></rich-text>
-                                    </view>
-                                </view>
                             </view>
                         </view>
                     </view>
-                </block>
-            </mp-cells>
-        </view>
-        <view wx:if="{{zhihu}}">
-            <text class="text-xxl text-bold text-red">{{postTitle}}</text>
-            <rich-text nodes="{{postContent}}"></rich-text>
-            <mp-cells title="(点击二维码图标放大，然后长按识别)" footer="(点击二维码图标放大，然后长按识别)">
-                <block wx:for="{{zhiHuAccList}}" wx:key="{{item.id}}">
-                    <view class="weui-flex">
-                        <view class="weui-flex__item">
-                            <view class="list-cell">
-                                <image style="width: 60px; height: 60px;margin-right: 40px;" src="{{item.img}}" />
+                </view>
+            </block>
+        </block>
+        <block wx:elif="{{zhihu}}">
+            <view class="solids-bottom padding-xs flex align-center">
+                <view class="flex-sub">
+                    <view class="solid-bottom padding text-center">
+                        <text class="text-{{bgColor}}">{{postTitle}}</text>
+                    </view>
+                    <view class="padding text-grey text-sm">{{postContent}}</view>
+                </view>
+            </view>
+            <view class='cu-bar solid-bottom bg-white'>
+                <view class='action'>
+                    <text class='text-sm text-{{bgColor}}'> (小程序内不能直接跳转网站，点击复制作者主页地址，粘贴到浏览器访问)</text>
+                </view>
+            </view>
+            <block wx:for="{{zhiHuAccList}}" wx:key="{{item.id}}">
+
+                <view class="cu-item">
+                    <view class="cu-avatar lg" style="background-image:url({{item.img}});"></view>
+                    <view class="content">
+                        <view class="text-{{bgColor}}">
+                            {{item.name}}
+                            <view>
+                                <text class="cu-tag round bg-{{bgColor}} sm">{{(item.praise)/10000}}W 获赞</text>
+                                <text class="cu-tag round bg-{{bgColor}} sm">{{(item.fan)/10000}}W 粉丝</text>
                             </view>
                         </view>
-                        <view class="weui-flex__item">
-                            <view class="list-cell">{{item.name}}</view>
-                            <view style="color: gray;">知乎签名：{{item.sign}}</view>
+                        <view class="text-{{bgColor}} text-xs flex">
+                            知乎签名：{{item.sign}}
                         </view>
-                        <view class="weui-flex__item" style=" margin-top:0;text-align: right;">
-                            <view style="color: gray; white-space:nowrap; ">{{(item.praise)}} 获赞</view>
-                            <view style="color: gray; white-space:nowrap; ">{{(item.fan)}} 粉丝</view>
-                        </view>
-                        <view class="weui-flex__item">
-                            <view class="btn" bindtap="open" data-text="{{item.url}}">
-                                <rich-text nodes="复制主页"></rich-text>
+                    </view>
+                    <view class="action">
+                        <view bindtap="open" data-text="{{item.url}}" class="text-{{bgColor}} text-xs flex">
+                            <view class="cu-tag round bg-{{bgColor}}">
+                                复制
                             </view>
                         </view>
                     </view>
-                </block>
-            </mp-cells>
-        </view>
+                </view>
+            </block>
+        </block>
         <view wx:else>
-            <htmltowxml text="{{postContent}}" type="html" highlightStyle="{{style}}" linenums="{{false}}" showLoading="{{false}}" bindWxmlTagATap="wxmlTagATap" imghost=""></htmltowxml>
-            <!-- <web-view src= "{{postUrl}}"></web-view> -->
-        </view>
-    </view>
-
-    <view class="ad">
-        <ad unit-id="adunit-da5b1800a9eae6d3" ad-intervals="30"></ad>
-    </view>
-    <block wx:if="{{!wechatAcc||wechatApplet||zhihu||douyin}}">
-        <view class="cu-bar bg-white align-center">
-            <view class="action border-title">
-                <text class="text-xxl text-bold text-blue">评论</text>
-                <text class="bg-gradual-blue"></text>
-            </view>
-        </view>
-
-        <!-- 评论接口 -->
-        <view class="cu-bar input" hidden="{{CommentSwitch}}">
-            <!-- <view class="action">
-        <text class="cuIcon-sound text-grey"></text>
-    </view> -->
-            <view class="flex justify-center" style="width:100%" wx:if="{{!hasUserInfo && canIUse}}">
+            <htmltowxml text="{{postContent}}" type="html" highlightStyle="{{style}}" linenums="{{false}}" showLoading="{{false}}" bindWxmlTagATap="wxmlTagATap" imghost="">
+            </htmltowxml>
+            <block wx:if="{{commercialCategory}}">
                 <view>
-                    <button class="cu-btn bg-blue shadow-blur round" role="button" aria-disabled="false" open-type="getUserInfo" bindtap="getUserProfile">授权后可评论</button>
+                    <image mode="widthFix" style="width: 100%;padding:5px;" bindtap='previewImage' id='{{postTags[0].thumbnail}}' src="{{postTags[0].thumbnail}}"></image>
                 </view>
-            </view>
+            </block>
             <block wx:else>
-                <input bindinput="Comment" style="margin-left: 40rpx;" class="solid-bottom" type="text" focus="{{false}}" maxlength="300" cursor-spacing="10" placeholder="尽管吐槽吧....." value="{{commentValue}}"></input>
-                <view class="action">
-                    <text class="{{false?'cuIcon-likefill text-red':'cuIcon-like text-grey'}}" bindtap="Likes"></text>
-                </view>
-                <button class="cu-btn bg-lightBlue shadow-blur" bindtap="CommentSubmit" hidden="{{CommentShow}}">发送</button>
-                <button class="cu-btn bg-grey shadow-blur" bindtap="CommentSubmitTips" hidden="{{!CommentShow}}">{{LastTime}}S</button>
+                <block wx:if="{{toolBox}}">
+                    <image mode="widthFix" style="width: 100%;margin-top:0px;" bindtap='previewImage' id='{{postBottomImg}}' src="{{postBottomImg}}">
+                    </image>
+                </block>
             </block>
         </view>
-
-        <view class="margin-bottom">
-            <view class="margin-sm flex flex-wrap align-center" wx:for="{{commentList}}" wx:key="keyId" wx:for-item="commentItem" wx:for-index="index" data-id="{{index}}">
-                <view class="basis-xs">
-                    <!-- <view class="cu-avatar lg round margin-left-sm" style="background-image:url({{commentItem.email==''?commentItem.authorUrl:'https://gravatar.loli.net/avatar/undefined/?s=256&d=mp'}});"></view> -->
-                    <view class="cu-avatar lg round margin-left-sm" style="background-image:url({{commentItem.email==''?commentItem.authorUrl:'https://gravatar.loli.net/avatar/undefined/?s=256&d=mp'}});"></view>
+        <block wx:if="{{!wechatAcc||wechatApplet||zhihu||douyin}}">
+            <view class="cu-bar bg-white align-center">
+                <view class="action border-title">
+                    <text class="text-xxl text-bold text-blue">评论</text>
+                    <text class="bg-gradual-blue"></text>
                 </view>
-                <view class="grid col-1 basis-xl {{commentItem.falg?'solid-bottom':''}}" style="min-height:120rpx;">
-                    <view class="padding-xs">
-                        <text class="text-black text-bold">{{commentItem.author}}</text>
-                        <view class="fr text-xs" style="line-height: 32rpx;">
-                            <text class="text-grey">{{commentItem.createTime}}</text>
+            </view>
+
+            <!-- 评论接口 -->
+            <view class="cu-bar input" hidden="{{CommentSwitch}}">
+                <view class="action">
+                    <text class="cuIcon-sound text-grey"></text>
+                </view>
+                <view class="flex justify-center" style="width:100%" wx:if="{{!hasUserInfo && canIUse}}">
+                    <view>
+                        <button class="cu-btn bg-blue shadow-blur round" role="button" aria-disabled="false" open-type="getUserInfo" bindtap="getUserProfile">前往小程序授权后可评论</button>
+                    </view>
+                </view>
+                <block wx:else>
+                    <input bindinput="Comment" style="margin-left: 40rpx;" class="solid-bottom" type="text" focus="{{false}}" maxlength="300" cursor-spacing="10" placeholder="尽管吐槽吧....." value="{{commentValue}}"></input>
+                    <view class="action">
+                        <text class="{{false?'cuIcon-likefill text-red':'cuIcon-like text-grey'}}" bindtap="Likes"></text>
+                    </view>
+                    <button class="cu-btn bg-lightBlue shadow-blur" bindtap="CommentSubmit" hidden="{{CommentShow}}">发送</button>
+                    <button class="cu-btn bg-grey shadow-blur" bindtap="CommentSubmitTips" hidden="{{!CommentShow}}">{{LastTime}}S</button>
+                </block>
+            </view>
+
+            <view class="margin-bottom">
+                <view class="margin-sm flex flex-wrap align-center" wx:for="{{commentList}}" wx:key="keyId" wx:for-item="commentItem" wx:for-index="index" data-id="{{index}}">
+                    <view class="basis-xs">
+                        <view class="cu-avatar lg round margin-left-sm" style="background-image:url('{{commentItem.email==''?commentItem.authorUrl:'https://gravatar.loli.net/avatar/undefined/?s=256&d=mp'}}')">
                         </view>
                     </view>
-                    <view class="padding-sm">
-                        <text class="text-sm">{{commentItem.content}}</text>
+                    <view class="grid col-1 basis-xl {{commentItem.falg?'solid-bottom':''}}" style="min-height:120rpx;">
+                        <view class="padding-xs">
+                            <text class="text-black text-bold">{{commentItem.author}}</text>
+                            <view class="fr text-xs" style="line-height: 32rpx;">
+                                <text class="text-grey">{{commentItem.createTime}}</text>
+                            </view>
+                        </view>
+                        <view class="padding-sm">
+                            <text class="text-sm">{{commentItem.content}}</text>
+                        </view>
                     </view>
                 </view>
             </view>
+        </block>
+        <view class="list">
+            <button class="cu-btn block line-{{bgColor}} shadow-blur">
+                <text class="cuIcon-forwardfill" bindtap="toHome">首页</text>
+            </button>
         </view>
-    </block>
-
+    </view>
 </scroll-view>
+<block wx:if="{{toolBox}}">
+    <view class="cu-bar tabbar bg-white shadow foot">
+        <view class="action" bindtap="NavChange" data-cur="jiaomao">
+            <view class='cuIcon-cu-image'>
+                <image src="/image/video-image/logo-jiaomao.png"></image>
+            </view>
+            <view class="{{PageCur=='jiaomao'?'text-green':'text-gray'}}">叫毛儿</view>
+        </view>
+        <view class="action" bindtap="NavChange" data-cur="wechatApplet">
+            <view class='cuIcon-cu-image'>
+                <image src="/image/video-image/logo_mini_programm.png"></image>
+            </view>
+            <view class="{{PageCur=='wechatApplet'?'text-green':'text-gray'}}">精选小程序</view>
+        </view>
+        <view class="action" bindtap="NavChange" data-cur="wechatAcc">
+            <view class='cuIcon-cu-image'>
+                <image src="/image/video-image/wechat.png"></image>
+            </view>
+            <view class="{{PageCur=='wechatAcc'?'text-green':'text-gray'}}">精选公众号</view>
+        </view>
+        <view class="action" bindtap="NavChange" data-cur="zhihu">
+            <view class='cuIcon-cu-image'>
+                <image src="/image/video-image/logo-zhihu.png"></image>
+            </view>
+            <view class="{{PageCur=='zhihu'?'text-green':'text-gray'}}">知乎精选</view>
+        </view>
+        <view class="action" bindtap="NavChange" data-cur="douyin">
+            <view class='cuIcon-cu-image'>
+                <image src="/image/video-image/tik-tok.png"></image>
+            </view>
+            <view class="{{PageCur=='douyin'?'text-green':'text-gray'}}">抖音精选</view>
+        </view>
+    </view>
+</block>

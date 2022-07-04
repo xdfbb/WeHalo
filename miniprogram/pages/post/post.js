@@ -41,41 +41,19 @@ Page({
         wechatApplet: false,
         zhihu: false,
         douyin: false,
+        commercialCategory: false,
+        categories: [],
+        bgColor: 'red'
     },
 
     /**
      * 生命周期函数--监听页面加载
      */
     onLoad: function (options) {
-
-        // 在页面中定义插屏广告
-        let interstitialAd = null
-
-        // 在页面onLoad回调事件中创建插屏广告实例
-        if (wx.createInterstitialAd) {
-            interstitialAd = wx.createInterstitialAd({
-                adUnitId: 'adunit-296c920c08da636d'
-            })
-            interstitialAd.onLoad(() => {})
-            interstitialAd.onError((err) => {})
-            interstitialAd.onClose(() => {})
-        }
-
-        // 在适合的场景显示插屏广告
-        if (interstitialAd) {
-            interstitialAd.show().catch((err) => {
-                console.error(err)
-            })
-        }
-
-
         var postId = options.postId;
-        // console.log(postId);
         this.setData({
             postId: postId
         })
-
-
         var urlContent = app.globalData.url + '/api/content/posts/' + postId;
         var token = app.globalData.token;
         var params = {};
@@ -85,9 +63,18 @@ Page({
         var urlComments = urlContent + '/comments/list_view';
         //@todo 评论列表网络请求API数据
         request.requestGetApi(urlComments, token, params, this, this.successComment, this.failComment);
+
         var urlSwitch = app.globalData.url + '/api/content/options/keys/comment_api_enabled';
         //@todo 评论开启按钮网络请求API数据
         request.requestGetApi(urlSwitch, token, params, this, this.successSwitch, this.failSwitch);
+
+        // //@todo tags网络请求API数据
+        this.requestTagstData();
+
+        this.setData({
+            postTitleImg: app.globalData.postTitleImg,
+            postBottomImg: app.globalData.postBottomImg,
+        });
     },
 
     /**
@@ -101,8 +88,6 @@ Page({
      * 生命周期函数--监听页面显示
      */
     onShow: function () {
-
-        // console.warn(app.globalData.userInfo);
         var userInfo = wx.getStorageSync('userInfo')
         if (userInfo) {
             this.setData({
@@ -149,6 +134,7 @@ Page({
         this.setData({
             "currentPage": this.data.currentPage + 1,
         });
+
         if (this.data.wechatAcc && this.data.wechatAccListHasNext) {
             this.requestWechatAccData();
         } else {
@@ -175,50 +161,82 @@ Page({
     },
 
     /**
-     * 用户点击右上角分享
+     * 获取Tags列表
      */
-    onShareAppMessage: function () {
-        // console.warn(this.data.postId);
-        return {
-            title: this.data.postTitle,
-            path: '/pages/post/post?postId=' + this.data.postId,
-            imageUrl: this.data.postThumbnail,
+    requestTagstData: function (e) {
+        var urlTags = app.globalData.url + '/api/admin/tags'; //读取首页背景图地址
+        var token = app.globalData.token;
+        var params = {};
+        request.requestGetApi(urlTags, token, params, this, this.successTags, this.failTags);
+    },
+
+    /**
+     * 成功获取tags列表
+     */
+    successTags: function (res, selfObj) {
+        var that = this;
+        if (res.data) {
+            for (var item of res.data) {
+                if ('小程序首页背景'.indexOf(item.name) > -1) {
+                    this.setData({
+                        backgroundimgurl: item.thumbnail
+                    })
+                } else if (('便民工具箱'.indexOf(item.name) > -1) && ('y'.indexOf(item.slug) > -1)) {
+                    that.setData({
+                        toolBox: true
+                    })
+                }
+            }
         }
+    },
+
+    /**
+     * 获取tags列表错误
+     */
+    failTags: function (res, selfObj) {
+        console.error('failTags', res)
     },
 
     /**
      * 用户点击右上角分享
      */
-    onShareTimeline: function () {
-        // console.warn(this.data.postId);
+    onShareAppMessage: function () {
+        var imageUrl;
+        if (this.data.commercialCategory) {
+            this.data.postTitle = "[" + this.data.categories[0].name + "]-" + this.data.postTitle;
+            imageUrl = this.data.categories[0].thumbnail;
+        } else {
+            imageUrl = this.data.postThumbnail;
+        }
+
         return {
             title: this.data.postTitle,
             path: '/pages/post/post?postId=' + this.data.postId,
-            imageUrl: this.data.postThumbnail,
+            imageUrl: imageUrl,
         }
     },
 
-    getUserProfile: function () {
-        var that = this
-        wx.getUserProfile({
-            desc: '用于完善用户资料',
-            success: (res) => {
-                if (res.errMsg == "getUserProfile:ok") {
-                    wx.setStorageSync('userInfo', res.userInfo)
-                    that.setData({
-                        userInfo: res.userInfo,
-                        hasUserInfo: true,
-                    })
-                }
-            },
-            fail: err => {
-                wx.showToast({
-                    title: '授权后才能评论哦',
-                    icon: 'none',
-                    duration: 3000
-                })
-            },
-        })
+    /**
+     * 用户点击右上角分享朋友圈
+     */
+    onShareTimeline: function () {
+        var imageUrl;
+        if (this.data.commercialCategory) {
+            this.data.postTitle = "[" + this.data.categories[0].name + "]-" + this.data.postTitle;
+            if ("利明说车频道".indexOf(this.data.categories[0].name) > -1) {
+                imageUrl = "https://s2.loli.net/2022/06/30/c6qxzvuSPNCj1ey.png";
+            } else {
+                imageUrl = 'https://s2.loli.net/2022/06/30/FruqtL7O1xIQBSP.png';
+            }
+        } else {
+            imageUrl = 'https://s2.loli.net/2022/06/30/FruqtL7O1xIQBSP.png';
+        }
+
+        return {
+            title: this.data.postTitle,
+            path: '/pages/post/post?postId=' + this.data.postId,
+            imageUrl: imageUrl,
+        }
     },
 
     /**
@@ -226,13 +244,7 @@ Page({
      */
     successFunPost: function (res, selfObj) {
         var that = this;
-
-        // console.warn(res.data);
         var createTime = res.data.createTime;
-        // time.customFormatTime(createTime, 'Y-M-D h:m:s');
-        // 当前时间的日期格式
-        // var date = new Date();
-
         that.setData({
             postTitle: res.data.title,
             postVisits: res.data.visits,
@@ -240,39 +252,56 @@ Page({
             postUrl: app.globalData.url + res.data.originalContentUrl,
             postContent: res.data.originalContent,
             postDate: time.customFormatTime(createTime, 'Y-M-D'),
+            categories: res.data.categories,
             postTags: res.data.tags,
             postThumbnail: res.data.thumbnail,
+            commercialCategory: '11'.indexOf(res.data.categoryIds) > -1,
         })
 
-        if ('wechatAcc'.indexOf(res.data.metas[0].key) > -1) {
-            that.setData({
-                wechatAcc: true
-            })
-            this.requestWechatAccData();
+        if (res.data.metas[0]) {
+            if ('wechatAcc'.indexOf(res.data.metas[0].key) > -1) {
+                that.setData({
+                    wechatAcc: true,
+                    PageCur: 'wechatAcc',
+                    bgColor: 'green'
+                })
+                this.requestWechatAccData();
+            }
+
+            if ('wechatApplet'.indexOf(res.data.metas[0].key) > -1) {
+                that.setData({
+                    wechatApplet: true,
+                    PageCur: 'wechatApplet',
+                    bgColor: 'green'
+                })
+                this.requestWechatAppletData();
+            }
+
+            if ('zhihu'.indexOf(res.data.metas[0].key) > -1) {
+                that.setData({
+                    zhihu: true,
+                    PageCur: 'zhihu',
+                    bgColor: 'blue'
+                })
+                this.requestZhiHuData();
+            }
+
+            if ('douyin'.indexOf(res.data.metas[0].key) > -1) {
+                that.setData({
+                    douyin: true,
+                    PageCur: 'douyin',
+                    bgColor: 'red'
+                })
+                this.requestDouYinData();
+            }
         }
+    },
 
-        if ('wechatApplet'.indexOf(res.data.metas[0].key) > -1) {
-            that.setData({
-                wechatApplet: true
-            })
-            this.requestWechatAppletData();
-        }
-
-
-        if ('zhihu'.indexOf(res.data.metas[0].key) > -1) {
-            that.setData({
-                zhihu: true
-            })
-            this.requestZhiHuData();
-        }
-
-
-        if ('douyin'.indexOf(res.data.metas[0].key) > -1) {
-            that.setData({
-                douyin: true
-            })
-            this.requestDouYinData();
-        }
+    /**
+     * 文章详情请求--接口调用失败处理
+     */
+    failFunPost: function (res, selfObj) {
+        console.error('failFunPosts', res)
     },
 
     /**
@@ -285,10 +314,10 @@ Page({
         };
         request.requestGetApi(urlZhihuAcc, token, params, this, this.successZhiHuPost, this.failZhiHuPost);
     },
+
     /**
      * 成功获取知乎列表
      */
-
     successZhiHuPost: function (res, selfObj) {
         var that = this;
         that.setData({
@@ -304,7 +333,6 @@ Page({
         console.error('failWechatAppletPost', res)
     },
 
-
     /**
      * 获取抖音列表
      */
@@ -316,10 +344,10 @@ Page({
         };
         request.requestGetApi(urlDouyinAcc, token, params, this, this.successDouYinPost, this.failDouYinPost);
     },
+
     /**
      * 成功获取抖音列表
      */
-
     successDouYinPost: function (res, selfObj) {
         var that = this;
         that.setData({
@@ -383,16 +411,23 @@ Page({
         var current = e.currentTarget.id;
         console.log(current);
         wx.previewImage({
-            urls: [current],
-            current: current,
-            showmenu: true
-        })
+                urls: [current],
+                current: current,
+                showmenu: true
+            },
+            this.successPreview,
+            this.failPreview,
+            this.completePreview
+        )
     },
-    /**
-     * 文章详情请求--接口调用失败处理
-     */
-    failFunPost: function (res, selfObj) {
-        console.error('failFunPosts', res)
+    successPreview: function (res, selfObj) {
+        console.log('successPreview', res)
+    },
+    failPreview: function (res, selfObj) {
+        console.log('failPreview', res)
+    },
+    completePreview: function (res, selfObj) {
+        console.log('completePreview', res)
     },
 
     /**
@@ -419,7 +454,7 @@ Page({
      */
     successComment: function (res, selfObj) {
         var that = this;
-        // console.warn(res.data);
+        console.info(res.data);
         var list = res.data.content;
         if (list.length != 0) {
             for (let i = 0; i < list.length; ++i) {
@@ -430,7 +465,6 @@ Page({
                     list[i].authorUrl = 'https://cn.gravatar.com/avatar/3958035fa354403fa9ca3fca36b08068?s=256&d=mm';
                 }
             }
-
             list[list.length - 1].falg = false;
         }
         that.setData({
@@ -443,8 +477,6 @@ Page({
     failComment: function (res, selfObj) {
         console.error('failComment', res)
     },
-
-
 
     /**
      * 评论模块
@@ -459,17 +491,13 @@ Page({
     },
 
     CommentSubmit: function (e) {
-
-        // console.warn(this.userInfo);
         var that = this;
-
         if (!that.data.CommentContent) {
             wx.showToast({
                 title: '评论内容不能为空！',
                 icon: 'none',
                 duration: 2000
             })
-            // console.error("评论内容为空!");
         } else {
             that.setData({
                 CommentShow: true,
@@ -486,11 +514,9 @@ Page({
                     that.setData({
                         LastTime: countdown
                     });
-                    // console.warn(countdown);
                     countdown--;
                 }
             }, 1000)
-            // console.warn(that.data.CommentContent);
             wx.cloud.callFunction({
                 name: 'msg_sec_check',
                 data: {
@@ -511,12 +537,6 @@ Page({
                     //@todo 网络请求API数据
                     request.requestPostApi(urlPostList, token, params, this, this.successSendComment, this.failSendComment);
                 } else {
-                    // wx.hideLoading();
-                    // wx.showModal({
-                    //     title: '提醒',
-                    //     content: '请注意言论',
-                    //     showCancel: false
-                    // })
                     wx.showToast({
                         title: '请注意言论！',
                         icon: 'none',
@@ -529,9 +549,6 @@ Page({
                 }
             })
         }
-
-
-
     },
 
     CommentSubmitTips: function () {
@@ -553,7 +570,6 @@ Page({
 
     successSendComment: function (res, selfObj) {
         var that = this;
-        // console.warn(res.data);
         that.setData({
             commentValue: "",
             CommentContent: undefined
@@ -567,7 +583,6 @@ Page({
         var urlContent = app.globalData.url + '/api/content/posts/' + that.data.postId;
         var urlComments = urlContent + '/comments/list_view';
         var params = {};
-        //@todo 评论列表网络请求API数据
         request.requestGetApi(urlComments, token, params, this, this.successComment, this.failComment);
     },
 
@@ -580,7 +595,6 @@ Page({
      */
     successSwitch: function (res, selfObj) {
         var that = this;
-        // console.warn(res.data);
         that.setData({
             CommentSwitch: !res.data,
         });
@@ -605,6 +619,72 @@ Page({
                 })
             }
         })
+    },
+
+    getUserProfile: function () {
+        var that = this
+        wx.getUserProfile({
+            desc: '用于完善用户资料',
+            success: (res) => {
+                if (res.errMsg == "getUserProfile:ok") {
+                    wx.setStorageSync('userInfo', res.userInfo)
+                    that.setData({
+                        userInfo: res.userInfo,
+                        hasUserInfo: true,
+                    })
+                }
+            },
+            fail: err => {
+                wx.showToast({
+                    title: '授权后才能评论哦',
+                    icon: 'none',
+                    duration: 3000
+                })
+            },
+        })
+    },
+    toHome() {
+        wx.reLaunch({
+            url: '/pages/index/index',
+        })
+    },
+
+    NavChange(e) {
+        console.log('NavChange ' + e.currentTarget.dataset.cur);
+        var pageCur = e.currentTarget.dataset.cur;
+        this.setData({
+            PageCur: pageCur
+        })
+
+        if (pageCur.indexOf('jiaomao') > -1) {
+            wx.reLaunch({
+                url: '/pages/index/index'
+            })
+        };
+
+        if (pageCur.indexOf('wechatApplet') > -1) {
+            wx.navigateTo({
+                url: '/pages/post/post?postId=47'
+            })
+        };
+
+        if (pageCur.indexOf('wechatAcc') > -1) {
+            wx.navigateTo({
+                url: '/pages/post/post?postId=46'
+            })
+        };
+
+        if (pageCur.indexOf('zhihu') > -1) {
+            wx.navigateTo({
+                url: '/pages/post/post?postId=49'
+            })
+        };
+
+        if (pageCur.indexOf('douyin') > -1) {
+            wx.navigateTo({
+                url: '/pages/post/post?postId=48'
+            })
+        };
     },
 
 })

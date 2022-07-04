@@ -2,5 +2,6 @@
     "usingComponents": {
         "mp-tabbar": "weui-miniprogram/tabbar/tabbar"
     },
-    "navigationStyle": "custom"
+    "navigationStyle": "custom",
+    "onReachBottomDistance": 300
 }

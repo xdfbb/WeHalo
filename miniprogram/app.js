@@ -1,12 +1,13 @@
 //app.js
 
 App({
-    onLaunch: function() {
+    onLaunch: function () {
         if (!wx.cloud) {
             console.error('请使用 2.2.3 或以上的基础库以使用云能力')
-        }
-        else {
+        } else {
             wx.cloud.init({
+                env: 'xlr-0053be',
+                env: 'xlr-0053be',
                 env: 'xlr-0053be',
                 traceUser: true,
             })
@@ -27,20 +28,24 @@ App({
         wx.getSystemInfo({
             success: e => {
                 this.globalData.StatusBar = e.statusBarHeight;
+                console.log('e.statusBarHeight: ' + e.statusBarHeight)
                 let capsule = wx.getMenuButtonBoundingClientRect();
+                console.log('capsule: ' + capsule)
+
                 if (capsule) {
-                     this.globalData.Custom = capsule;
+                    this.globalData.Custom = capsule;
                     this.globalData.CustomBar = capsule.bottom + capsule.top - e.statusBarHeight;
                 } else {
                     this.globalData.CustomBar = e.statusBarHeight + 50;
                 }
+                // this.globalData.CustomBar = this.globalData.CustomBar + 70;
             }
         })
 
         const miniProgram = wx.getAccountInfoSync()
         console.log(miniProgram)
         this.globalData.miniProgram = miniProgram.miniProgram
-        
+
         // 获取小程序更新机制兼容
         if (wx.canIUse('getUpdateManager')) {
             const updateManager = wx.getUpdateManager()
@@ -88,7 +93,9 @@ App({
         highlightStyle: "dracula", //代码高亮样式，可用值default,darcula,dracula,tomorrow
         adminOpenid: "oY3L80FJLtU-rxykgaekZ6aeEZdo",
         HaloUser: "xdfbb",
-        HaloPassword: "11291212Ee"
+        HaloPassword: "11291212Ee",
+        postTitleImg: 'https://jiaomao.solemountain.cn/upload/2022/07/postTitle.png',
+        postBottomImg: 'https://jiaomao.solemountain.cn/upload/2022/07/postBottom.png',
     }
-    
+
 })

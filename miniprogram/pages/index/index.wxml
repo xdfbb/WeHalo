@@ -1,46 +1,49 @@
-<!-- <wh-authorCard isHidden="{{aflag}}" id="authorCardId"></wh-authorCard> -->
-<scroll-view scroll-y class="DrawerPage {{modalName=='viewModal'?'show':''}}" bindscroll="onPageScroll" scroll-with-animation="true" style="background-color: {{skin?'#ffffff':'#ffffff'}};" bindscrolltolower="loadMore">
-    <cu-custom bgColor="bg-red" isBack="{{false}}" isCustom="{{false}}" isNav="{{scrollTop>120?false:true}}" isFixed="fixed" bgImage="{{backgroundimgurl}}">
+<scroll-view scroll-top="{{topNum}}" scroll-y class="DrawerPage" scroll-with-animation="true" bindscrolltolower="touchBottom" style="background-color: {{skin?'#ffffff':'#ffffff'}};">
+    <!-- <cu-custom bgColor="bg-red" isBack="{{false}}" isCustom="{{false}}" isNav="{{scrollTop>120?false:true}}" isFixed="fixed" bgImage="{{backgroundimgurl}}">
         <view slot="backText">返回</view>
-    </cu-custom>
-    <wh-addTips text="点击「添加“叫毛儿”到我的小程序」，下次直接在微信手指下拉屏幕找到我们" duration="5"></wh-addTips>
-    <view bindtouchstart="touchStart" bindtouchend="touchEnd" class="flex justify-center padding align-center bg-white" style="width:100%;background-repeat: no-repeat; background-size: 100%;background-image:url('https://s2.loli.net/2022/06/26/73U2fctJDVMGW5r.png');">
-        <view class="grid col-2 margin-bottom text-bottom" style="width:100%;height: 50px;">
-            <!-- <view class="text-xl padding-top text-shadow-meow text-white text-bold text-center">
-                <wh-typeWriter whContent="{{jinrishici}}"></wh-typeWriter>
-            </view> -->
+    </cu-custom> -->
+    <view class="cu-custom" style="height:{{CustomBar+70}}px">
+        <view class="cu-bar fixed none-bg text-white bg-img bg-red" style="height:{{CustomBar+70}}px;padding-top:{{StatusBar}}px;background-image:url({{backgroundimgurl}})">
+            <view class="action" bindtap="BackPage" wx:if="{{isBack}}">
+                <text class="cuIcon-back"></text>
+                <slot name="backText"></slot>
+            </view>
+            <view class="content" style="top:{{StatusBar}}px">
+                <slot name="content"></slot>
+            </view>
         </view>
     </view>
-    <!-- <view class="home text-shadow-meow" bindtap="showModal" data-target="viewModal">
-        <view class="home-btn home-img shadow-blur"></view>
+    <!-- <wh-addTips text="点击「添加“叫毛儿”到我的小程序」，下次不迷路！" duration="5"></wh-addTips> -->
+    <!-- <view class="text-center text-shadow text-red margin-top text-l">
+        <wh-typeWriter whContent="叫毛儿人，叫毛儿事，南阳人的网上精神家园"></wh-typeWriter>
     </view> -->
-    <view>
-        <swiper bindchange="cardSwiper" class="card-swiper {{DotStyle?'square-dot':'round-dot'}}" circular="true" autoplay="true" interval="5000" duration="500">
-            <swiper-item wx:for="{{bannerPost? bannerPost:5}}" wx:for-item="bannerPost" wx:for-index="index" wx:key="keyId" class="{{cardCur==index?'cur':''}}" wx:if="{{index<5}}">
-                <navigator url="../post/post?postId={{bannerPost.id}}" open-type="navigate">
-                    <view class="swiper-item" style="padding: 20rpx; padding-bottom:26rpx;">
-                        <view class="carousel-img radius shadow-meow bg-lightGrey bg-img" style="background-image:url({{bannerPost.thumbnail}}); width:100%">
-                            <view class="bg-maskCard flex-sub" style="border-radius:6rpx; height:100%; position:relative;">
-                                <view class="padding-lg text-white">
-                                    <view class="padding-xs text-xl text-bold text-shadow-meow">
-                                        {{bannerPost.title}}
+
+    <block wx:if="{{toolBox}}">
+        <view>
+            <swiper bindchange="cardSwiper" class="card-swiper {{DotStyle?'square-dot':'round-dot'}}" circular="true" autoplay="true" interval="5000" duration="500">
+                <swiper-item wx:for="{{bannerPost? bannerPost:5}}" wx:for-item="bannerPost" wx:for-index="index" wx:key="keyId" class="{{cardCur==index?'cur':''}}" wx:if="{{index<5}}">
+                    <navigator url="../post/post?postId={{bannerPost.id}}" open-type="navigate">
+                        <view class="swiper-item" style="padding: 20rpx; padding-bottom:26rpx;">
+                            <view class="carousel-img radius shadow-meow bg-lightGrey bg-img" style="background-image:url({{bannerPost.thumbnail}}); width:100%">
+                                <view class="bg-maskCard flex-sub" style="border-radius:6rpx; height:100%; position:relative;">
+                                    <view class="padding-lg text-white">
+                                        <view class="padding-xs text-xl text-bold text-shadow-meow">
+                                            {{bannerPost.title}}
+                                        </view>
                                     </view>
-                                </view>
-                                <view class="padding-lg text-white" style="position:absolute; bottom:0; right:0;">
-                                    <view class="padding-xs text-df text-bold text-shadow-meow">
-                                        {{bannerPost.createTime}}
+                                    <view class="padding-lg text-white" style="position:absolute; bottom:0; right:0;">
+                                        <view class="padding-xs text-df text-bold text-shadow-meow">
+                                            {{bannerPost.createTime}}
+                                        </view>
                                     </view>
                                 </view>
                             </view>
                         </view>
-                    </view>
-                </navigator>
-            </swiper-item>
-        </swiper>
-    </view>
-    <!-- <view style="margin-right:20rpx; margin-left:20rpx;">
-        <official-account style=""></official-account>
-    </view> -->
+                    </navigator>
+                </swiper-item>
+            </swiper>
+        </view>
+    </block>
     <view class="cu-bar search bg-white">
         <view class="search-form round">
             <text class="cuIcon-search"></text>
@@ -50,56 +53,127 @@
             <button class="cu-btn bg-red shadow-blur round" bindtap="SearchSubmit">搜索</button>
         </view>
     </view>
-    <scroll-view scroll-x class="bg-white nav text-center" style="background-color: {{skin?'#ffffff':'#ffffff'}};">
-        <button class="cu-btn round margin-bottom-xs margin-right-xs {{index==TabCur?' bg-red':'line-red'}} text-df" wx:for="{{categories}}" wx:key="keyId" wx:for-index="index" bindtap="tabSelect" data-slug="{{item.slug}}" data-id="{{index}}">
+
+    <block wx:if="{{toolBox}}">
+        <view class="cu-bar bg-white solid-top margin-top">
+            <view class="action">
+                <text class="cuIcon-title text-orange "></text> 便民工具箱
+            </view>
+        </view>
+        <view class="cu-list grid col-3 no-border solid">
+            <view class="cu-item solid">
+                <navigator target="miniProgram" open-type="navigate" app-id="wxa32b480c19453653">
+                    <view class="cuIcon-homefill lg text-red">
+                        <!-- <view class="cu-tag badge">热门</view> -->
+                    </view>
+                    <text>南阳市社保</text>
+                </navigator>
+            </view>
+            <view class="cu-item">
+                <navigator target="miniProgram" open-type="navigate" app-id="wx0db0304107fa8d04">
+                    <view class="cuIcon-discover lg text-red">
+                        <view class="cu-tag badge">热门</view>
+                    </view>
+                    <text>天气</text>
+                </navigator>
+            </view>
+            <view class="cu-item">
+                <navigator target="miniProgram" open-type="navigate" app-id="wx4dea6f132ae99e01">
+                    <view class="cuIcon-moneybagfill lg text-red">
+                        <!-- <view class="cu-tag badge">热门</view> -->
+                    </view>
+                    <text>南阳市公积金</text>
+                </navigator>
+            </view>
+            <view class="cu-item">
+                <navigator target="miniProgram" open-type="navigate" app-id="wxc81db7a6571c4bec">
+                    <view class="cuIcon-recharge lg text-red">
+                        <!-- <view class="cu-tag badge">热门</view> -->
+                    </view>
+                    <text>彩票</text>
+                </navigator>
+            </view>
+            <view class="cu-item">
+                <navigator target="miniProgram" open-type="navigate" app-id="wxbd56b62a13d242d2">
+                    <view class="cuIcon-warn lg text-red">
+                        <!-- <view class="cu-tag badge">热门</view> -->
+                    </view>
+                    <text>南阳违章查询</text>
+                </navigator>
+            </view>
+            <view class="cu-item">
+                <navigator target="miniProgram" open-type="navigate" app-id="wxd2ade0f25a874ee2">
+                    <view class="cuIcon-lightfill  lg text-red">
+                        <!-- <view class="cu-tag badge">热门</view> -->
+                    </view>
+                    <text>南阳水电费缴纳</text>
+                </navigator>
+            </view>
+            <view class="cu-item">
+                <navigator target="miniProgram" open-type="navigate" app-id="wx8f446acf8c4a85f5">
+                    <view class="cuIcon-deliver_fill lg text-red">
+                        <!-- <view class="cu-tag badge">热门</view> -->
+                    </view>
+                    <text>全国行程卡</text>
+                </navigator>
+            </view>
+            <view class="cu-item">
+                <navigator target="miniProgram" open-type="navigate" app-id="wx2eec5fb00157a603">
+                    <view class="cuIcon-qrcode lg text-red">
+                        <!-- <view class="cu-tag badge">热门</view> -->
+                    </view>
+                    <text>全国健康码</text>
+                </navigator>
+            </view>
+            <view class="cu-item">
+                <navigator target="miniProgram" open-type="navigate" app-id="wxb401f954926c5a8e">
+                    <view class="cuIcon-evaluate_fill lg text-red">
+                        <!-- <view class="cu-tag badge">热门</view> -->
+                    </view>
+                    <text>健康南阳通</text>
+                </navigator>
+            </view>
+        </view>
+    </block>
+    <view class="cu-bar bg-white solid margin-top margin-bottom">
+        <view class="action">
+            <text class="cuIcon-title text-orange "></text> 叫毛儿热点
+        </view>
+    </view>
+    <view class="grid col-5 padding-sm bg-white nav text-center justify-center" style="background-color: {{skin?'#ffffff':'#ffffff'}};">
+        <button class="flex cu-btn round margin-bottom-xs margin-right-xs {{index==TabCur?' bg-red':'line-red'}} text-df" wx:for="{{categories}}" wx:key="keyId" wx:for-index="index" bindtap="tabSelect" data-slug="{{item.slug}}" data-id="{{index}}">
             {{item.name}}
         </button>
-    </scroll-view>
-
-    <!-- 瀑布流 -->
-    <view class="grid col-2 content text-center" bindtouchstart="touchStart" bindtouchend="touchEnd">
-        <view class="fall-left">
-            <block wx:for="{{postList}}" wx:key="keyId" wx:for-index="index" wx:for-item="postList" wx:if="{{index%2==0}}">
-                <navigator url="../post/post?postId={{postList.id}}" open-type="navigate" data-id="{{index}}">
-                    <view class="margin-sm radius shadow-blur bg-img {{colourList[(index+randomNum)%10].colour}} animation-scale-up" style="margin-right:10rpx; margin-top:0; background-image:url({{skin?postList.thumbnail:''}}); animation-delay: {{(index+1)*0.2*animationTime}}s;">
-                        <view class="bg-maskCards flex-sub align-end" style="border-radius:6rpx; height:100%;">
-                            <view class="padding-lg text-white">
-                                <view class="padding-xs text-xl text-bold text-shadow">
-                                    {{postList.title}}
-                                </view>
-                            </view>
-                        </view>
-                    </view>
-                </navigator>
-            </block>
-        </view>
-        <view class="fall-right">
-            <block wx:for="{{postList}}" wx:key="keyId" wx:for-index="index" wx:for-item="postList" wx:if="{{index%2==1}}">
-                <navigator url="../post/post?postId={{postList.id}}" open-type="navigate" data-id="{{index}}">
-                    <view class="margin-sm radius shadow-blur bg-img {{colourList[(index+randomNum)%10].colour}} animation-scale-up" style="margin-left:10rpx; margin-top:0; background-image:url({{skin?postList.thumbnail:''}}); animation-delay: {{(index+1)*0.2*animationTime}}s;">
-                        <view class="bg-maskCards flex-sub align-end" style="border-radius:6rpx; height:100%;">
-                            <view class="padding-lg text-white">
-                                <view class="padding-xs text-xl text-bold text-shadow">
-                                    {{postList.title}}
-                                </view>
-                            </view>
-                        </view>
-                    </view>
-                </navigator>
-            </block>
-        </view>
     </view>
-    <view class="flex justify-center grid col-1" hidden="{{!moreFlag}}" bindtouchstart="touchStart" bindtouchend="touchEnd">
-        <view class="text-xs flex justify-center animation-scale-up" style="width:100%; text-align:center;">
-            <view class="text-grey">{{noPostTitle}}</view>
-        </view>
-        <view class="text-xs flex justify-center" style="height:250rpx;"></view>
-    </view>
-    <!-- <view class="list" bindtap="showModal" data-target="viewModal">
-        <button class="cu-btn icon">
-            <text class="cuIcon-list"></text>
+    <view class="list" bindtap="toTop">
+        <button class="cu-btn block line-orange">
+            <text class="cuIcon-top"></text>
         </button>
-    </view> -->
+    </view>
+
+    <view class="cu-list" bindtouchstart="touchStart" bindtouchend="touchEnd">
+        <navigator wx:for="{{postList}}" wx:key="keyId" wx:for-index="index" wx:for-item="postList" url="../post/post?postId={{postList.id}}" open-type="navigate" data-id="{{index}}">
+            <view class="cu-card article bg-img {{colourList[(index+randomNum)%10].colour}}">
+                <view class="cu-item shadow">
+                    <view class="title">
+                        <view class="text-cut"> {{postList.title}}</view>
+                    </view>
+                    <view class="content">
+                        <image src="{{postList.thumbnail?postList.thumbnail:'https://random.imagecdn.app/150/90?id='+ index}}" mode="aspectFill"></image>
+                        <view class="desc">
+                            <view class="text-content"> {{postList.summary}}</view>
+                            <view>
+                                <block wx:for="{{postList.categories}}" wx:key="id" wx:for-index="index" wx:for-item="categories">
+                                    <view class="cu-tag bg-red light sm round">{{categories.name}}</view>
+                                </block>
+                            </view>
+                        </view>
+                    </view>
+                </view>
+            </view>
+        </navigator>
+        <view id="loading-icon" class="loading cu-load loading line-orange" style="{{loadStyle}}"></view>
+    </view>
     <!-- 访问密码 -->
     <view class="cu-modal show" bindtap="hidePasswordModal" wx:if="{{isPasswordShow}}">
         <view class="cu-dialog" catchtap>
@@ -110,122 +184,44 @@
             </view>
             <view class="cu-bar bg-white">
                 <view class="action margin-0 flex-sub text-blue " bindtap="clickPassword">
-                    <text></text>确认
+                    <text>确认</text>
                 </view>
             </view>
-        </view>
-    </view>
-    <mp-tabbar style="position:fixed;bottom:0;width:100%;left:0;right:0;" list="{{navTabList}}" bindchange="tabChange"></mp-tabbar>
-</scroll-view>
-<view class="DrawerClose {{modalName=='viewModal'?'show':''}}" bindtap="hideModal">
-    <text class="cuIcon-pullright"></text>
-</view>
-<scroll-view scroll-y class="DrawerWindow {{modalName=='viewModal'?'show':''}}" bindtouchstart="touchStart" bindtouchend="touchEnd">
-    <view class="cu-list menu card-menu margin-top-xl margin-bottom-xl padding-bottom" style="margin-top:100rpx;">
-        <view class="cu-list menu sm-border card-menu margin-top shadow-meow">
-            <view class="cu-item" style='min-height: 200rpx;'>
-                <view wx:if="{{!hasUserInfo && canIUse}}" class="content grid col-1">
-                    <view class="padding-sm text-sm flex justify-center">
-                        <text class="text-grey">允许微信授权后，可体验更多功能</text>
-                    </view>
-                    <view class="padding-sm flex justify-center">
-                        <button open-type="getUserInfo" bindtap="getUserProfile" class='cu-btn round bg-green shadow'>
-                            微信授权
-                        </button>
-                    </view>
-                </view>
-                <block wx:else>
-                    <view class="content flex justify-center align-center">
-                        <view class="flex-sub">
-                            <view class="cu-avatar xl round menu-img" style="background-image:url({{userInfo.avatarUrl}});"></view>
-                        </view>
-                        <view class="flex-twice grid col-1 ">
-                            <view class="text-lg margin-xs">
-                                <text class="text-black text-bold">{{userInfo.nickName}}</text>
-                            </view>
-                            <view class="margin-xs bg-white">
-                                <view class="cu-tag radius">{{Role}}</view>
-                            </view>
-                        </view>
-                    </view>
-                </block>
-            </view>
-            <view class="cu-item arrow">
-                <view class="content" bindtap="showMask">
-                    <text class="cuIcon-github text-gray menu-img"></text>
-                    <text class="text-grey">GitHub</text>
-                </view>
-            </view>
-            <view class="cu-item arrow">
-                <button class="cu-btn content" open-type="contact">
-                    <text class="cuIcon-communityfill text-lightBlue menu-img"></text>
-                    <text class="text-grey">联系作者</text>
-                </button>
-            </view>
-            <view wx:if="{{!roleFlag}}" class="cu-item arrow">
-                <view class="content">
-                    <text class="cuIcon-discoverfill text-gray menu-img"></text>
-                    <text class="text-grey">您不是管理员，无法访问</text>
-                </view>
-            </view>
-            <block wx:else>
-                <view class="cu-item arrow">
-                    <navigator class="content" hover-class="none" url="../halo/halo" open-type="navigate" bindtap="shutDownDrawer">
-                        <text class="cuIcon-discoverfill text-gray menu-img"></text>
-                        <text class="text-grey">Halo 仪表盘</text>
-                    </navigator>
-                </view>
-            </block>
-            <view class="cu-item arrow">
-                <navigator class="content" hover-class="none" url="../wehalo/wehalo" open-type="navigate" bindtap="shutDownDrawer">
-                    <text class="cuIcon-formfill text-lightBlue menu-img"></text>
-                    <text class="text-grey">WeHalo</text>
-                </navigator>
-            </view>
-            <view class="cu-item">
-                <view class="content">
-                    <text class="cuIcon-skinfill text-gray menu-img"></text>
-                    <text class="text-grey">炫图模式</text>
-                </view>
-                <view class="action">
-                    <switch class="switch-theme sm" bindchange="switchSex"></switch>
-                </view>
-            </view>
-            <view class="cu-item arrow">
-                <navigator class="content" hover-class="none" url="../journal/journal" open-type="navigate" bindtap="shutDownDrawer">
-                    <text class="cuIcon-time text-lightBlue menu-img"></text>
-                    <text class="text-grey">TalkShow</text>
-                </navigator>
-            </view>
-            <view class="cu-item arrow">
-                <navigator class="content" hover-class="none" url="../friends/friends" open-type="navigate" bindtap="shutDownDrawer">
-                    <text class="cuIcon-group_fill text-gray menu-img"></text>
-                    <text class="text-grey">Friends</text>
-                </navigator>
-            </view>
-            <view class="cu-item arrow">
-                <button class="cu-btn content" open-type="feedback">
-                    <text class="cuIcon-writefill text-lightBlue"></text>
-                    <text class="text-grey">意见反馈</text>
-                </button>
-            </view>
-            <view class="cu-item arrow">
-                <navigator class="content" hover-class="none" url="../photos/photos" open-type="navigate" bindtap="shutDownDrawer">
-                    <text class="cuIcon-pic text-gray menu-img"></text>
-                    <text class="text-grey">图库</text>
-                </navigator>
-            </view>
-        </view>
-    </view>
-
-    <view class="grid col-1 text-xs" style="position:fixed;bottom:20rpx;width:100%;text-align:center;">
-        <view class="flex justify-center padding-xs">
-            <view class="text-grey" style="margin-right:4rpx;">{{ miniProgram.envVersion }} Version</view>
-            <view class="text-techBlue text-bold">{{ miniProgram.version }}</view>
-        </view>
-        <view class="flex justify-center">
-            <view class="text-grey" style="margin-right:4rpx;">Powered by</view>
-            <view class="text-lightBlue">WeHalo</view>
         </view>
     </view>
 </scroll-view>
+<!-- <mp-tabbar style="position:fixed;bottom:0;width:100%;left:0;right:0;" list="{{navTabList}}" bindchange="tabChange"></mp-tabbar> -->
+<block wx:if="{{toolBox}}">
+    <view class="cu-bar tabbar bg-white shadow foot">
+        <view class="action" bindtap="NavChange" data-cur="jiaomao">
+            <view class='cuIcon-cu-image'>
+                <image src="/image/video-image/logo-jiaomao.png"></image>
+            </view>
+            <view class="{{PageCur=='jiaomao'?'text-green':'text-gray'}}">叫毛儿</view>
+        </view>
+        <view class="action" bindtap="NavChange" data-cur="wechatApplet">
+            <view class='cuIcon-cu-image'>
+                <image src="/image/video-image/logo_mini_programm.png"></image>
+            </view>
+            <view class="{{PageCur=='wechatApplet'?'text-green':'text-gray'}}">精选小程序</view>
+        </view>
+        <view class="action" bindtap="NavChange" data-cur="wechatAcc">
+            <view class='cuIcon-cu-image'>
+                <image src="/image/video-image/wechat.png"></image>
+            </view>
+            <view class="{{PageCur=='wechatAcc'?'text-green':'text-gray'}}">精选公众号</view>
+        </view>
+        <view class="action" bindtap="NavChange" data-cur="zhihu">
+            <view class='cuIcon-cu-image'>
+                <image src="/image/video-image/logo-zhihu.png"></image>
+            </view>
+            <view class="{{PageCur=='zhihu'?'text-green':'text-gray'}}">知乎精选</view>
+        </view>
+        <view class="action" bindtap="NavChange" data-cur="douyin">
+            <view class='cuIcon-cu-image'>
+                <image src="/image/video-image/tik-tok.png"></image>
+            </view>
+            <view class="{{PageCur=='douyin'?'text-green':'text-gray'}}">抖音精选</view>
+        </view>
+    </view>
+</block>

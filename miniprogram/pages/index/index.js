@@ -9,7 +9,20 @@ let touchDotY = 0; //y按下时坐标
 let interval; //计时器
 let time = 0; //从按下到松开共多少时间*100
 
-
+//请求参数
+var urlPostList = app.globalData.url + '/api/content/posts';
+var token = app.globalData.token;
+var params = {
+    page: 0,
+    size: 25,
+    sort: 'createTime,desc',
+};
+var paramBanner = {
+    page: 0,
+    size: 4,
+    categoryId: 10,
+    sort: 'visits,desc',
+};
 
 Page({
     data: {
@@ -36,36 +49,12 @@ Page({
         Role: '游客',
         roleFlag: false,
         adminOpenid: app.globalData.adminOpenid,
-        colourList: [{
-            colour: 'bg-red'
-        }, {
-            colour: 'bg-orange'
-        }, {
-            colour: 'bg-yellow'
-        }, {
-            colour: 'bg-olive'
-        }, {
-            colour: 'bg-green'
-        }, {
-            colour: 'bg-cyan'
-        }, {
-            colour: 'bg-blue'
-        }, {
-            colour: 'bg-purple'
-        }, {
-            colour: 'bg-mauve'
-        }, {
-            colour: 'bg-pink'
-        }, {
-            colour: 'bg-lightBlue'
-        }],
-        categories: [{
-            name: "全部",
-            slug: "all"
-        }],
-        isPasswordShow: false,
-        password: null,
-        secretUrl: null,
+        currentPage: 0,
+        postList: [],
+        postListHasNext: false,
+        topNum: 0,
+        loadStyle: 'display:none',
+        toolBox: false,
         navTabList: [{
                 "text": "叫毛儿",
                 "iconPath": "/image/video-image/logo-jiaomao.png",
@@ -97,7 +86,44 @@ Page({
                 "pagePath": "/pages/post/post?postId=48",
             }
         ],
+        colourList: [{
+            colour: 'bg-red'
+        }, {
+            colour: 'bg-orange'
+        }, {
+            colour: 'bg-yellow'
+        }, {
+            colour: 'bg-olive'
+        }, {
+            colour: 'bg-green'
+        }, {
+            colour: 'bg-cyan'
+        }, {
+            colour: 'bg-blue'
+        }, {
+            colour: 'bg-purple'
+        }, {
+            colour: 'bg-mauve'
+        }, {
+            colour: 'bg-pink'
+        }, {
+            colour: 'bg-lightBlue'
+        }],
+        categories: [{
+            name: "全部",
+            slug: "all"
+        }],
+        isPasswordShow: false,
+        password: null,
+        secretUrl: null,
+
     },
+    toTop() { // 回到顶部
+        this.setData({
+            topNum: 0
+        })
+    },
+
     tabChange(e) {
         //获取到底部栏元素的下标
         let index = e.detail.index;
@@ -109,6 +135,46 @@ Page({
         })
         console.log('tab change', e.detail.index)
     },
+
+    NavChange(e) {
+        console.log('NavChange ' + e.currentTarget.dataset.cur);
+        var pageCur = e.currentTarget.dataset.cur;
+        this.setData({
+            PageCur: pageCur
+        })
+
+        if (pageCur.indexOf('jiaomao') > -1) {
+            wx.reLaunch({
+                url: '/pages/index/index'
+            })
+        };
+
+        if (pageCur.indexOf('wechatApplet') > -1) {
+            wx.navigateTo({
+                url: '/pages/post/post?postId=47'
+            })
+        };
+
+        if (pageCur.indexOf('wechatAcc') > -1) {
+            wx.navigateTo({
+                url: '/pages/post/post?postId=46'
+            })
+        };
+
+        if (pageCur.indexOf('zhihu') > -1) {
+            wx.navigateTo({
+                url: '/pages/post/post?postId=49'
+            })
+        };
+
+        if (pageCur.indexOf('douyin') > -1) {
+            wx.navigateTo({
+                url: '/pages/post/post?postId=48'
+            })
+        };
+
+    },
+
     /**
      * 监听屏幕滚动 判断上下滚动
      */
@@ -117,6 +183,7 @@ Page({
             scrollTop: event.detail.scrollTop
         })
     },
+
     //事件处理函数
     bindViewTap: function () {
         wx.navigateTo({
@@ -139,23 +206,6 @@ Page({
     },
 
     onLoad: function () {
-        // 在页面中定义插屏广告
-        let interstitialAd = null
-        // 在页面onLoad回调事件中创建插屏广告实例
-        if (wx.createInterstitialAd) {
-            interstitialAd = wx.createInterstitialAd({
-                adUnitId: 'adunit-f117e72a7c599593'
-            })
-            interstitialAd.onLoad(() => {})
-            interstitialAd.onError((err) => {})
-            interstitialAd.onClose(() => {})
-        }
-        // 在适合的场景显示插屏广告
-        if (interstitialAd) {
-            interstitialAd.show().catch((err) => {
-                console.error(err)
-            })
-        }
         // 每日诗词
         jinrishici.load(result => {
             // 下面是处理逻辑示例
@@ -163,23 +213,13 @@ Page({
                 jinrishici: result.data.content
             });
         });
-        var urlPostList = app.globalData.url + '/api/content/posts';
-        var token = app.globalData.token;
-        var params = {
-            page: 0,
-            size: 100, //不带参数请求默认10条，又没有查所有文章的接口，所以先暂定100
-            sort: 'createTime,desc',
-        };
-        var paramBanner = {
-            page: 0,
-            size: 4,
-            categoryId: 10,
-            sort: 'visits,desc',
-        };
+
         // @todo 文章列表网络请求API数据
         request.requestGetApi(urlPostList, token, params, this, this.successPostList, this.failPostList);
+
         // @todo 文章Banner网络请求API数据
         request.requestGetApi(urlPostList, token, paramBanner, this, this.successBanner, this.failBanner);
+
         var urlAdminLogin = app.globalData.url + '/api/admin/login';
         var paramAdminLogin = {
             username: this.data.HaloUser,
@@ -187,6 +227,7 @@ Page({
         };
         // @todo 获取后台token网络请求API数据
         request.requestPostApi(urlAdminLogin, token, paramAdminLogin, this, this.successAdminLogin, this.failAdminLogin);
+
         var that = this;
         var urlCategoriesList = app.globalData.url + '/api/content/categories';
         // 查分类
@@ -194,13 +235,35 @@ Page({
             sort: 'createTime'
         }, this, function (res) {
             res.data.forEach(element => {
-                that.data.categories.push(element)
+                if (!element.password) {
+                    that.data.categories.push(element);
+                };
             });
             that.setData({
                 categories: that.data.categories
             })
         }, null);
         this.requestTagstData();
+    },
+
+    /**
+     * 页面上拉触底事件的处理函数
+     * 加载更多
+     */
+    touchBottom: function () {
+        this.setData({
+            "currentPage": this.data.currentPage + 1,
+            loadStyle: 'display:'
+        });
+        if (this.data.postListHasNext) {
+            params.page = this.data.currentPage;
+            request.requestGetApi(urlPostList, token, params, this, this.successPostList, this.failPostList);
+        } else {
+            console.log("no more post data");
+            this.setData({
+                loadStyle: 'display:none'
+            });
+        }
     },
 
     getUserProfile: function () {
@@ -309,17 +372,7 @@ Page({
             })
         }
     },
-    showModal(e) {
-        console.log(e);
-        this.setData({
-            modalName: e.currentTarget.dataset.target
-        })
-    },
-    hideModal(e) {
-        this.setData({
-            modalName: null
-        })
-    },
+
     tabSelect(e) {
         this.randomNum();
         this.setData({
@@ -387,19 +440,10 @@ Page({
         clearInterval(interval); // 清除setInterval
         time = 0;
     },
-    // 关闭抽屉
-    shutDownDrawer: function (e) {
-        this.setData({
-            modalName: null
-        })
-    },
+
     //冒泡事件
     maopao: function (e) {
         console.log("冒泡...")
-    },
-    showMask: function (e) {
-        this.selectComponent("#authorCardId").showMask();
-        this.shutDownDrawer();
     },
 
     //获取随机数
@@ -409,15 +453,6 @@ Page({
             randomNum: num
         });
     },
-
-    /**
-     * 加载更多
-     */
-    loadMore: function () {
-
-    },
-
-
 
     /**
      * 文章Banner请求--接口调用成功处理
@@ -440,15 +475,17 @@ Page({
     },
 
 
-    /**
-     * 文章列表请求--接口调用成功处理
-     */
+
     /**
      * 文章列表请求--接口调用成功处理
      */
     successPostList: function (res, selfObj) {
         var that = this;
+        this.setData({
+            loadStyle: 'display:none'
+        });
         if (res.status != 403) {
+            this.data.postListHasNext = res.data.hasNext;
             var list = res.data.content;
             for (let i = 0; i < list.length; ++i) {
                 list[i].createTime = util.customFormatTime(list[i].createTime, 'Y.M.D');
@@ -457,7 +494,7 @@ Page({
                 }
             }
             that.setData({
-                postList: res.data.content,
+                postList: this.data.postList.concat(res.data.content),
                 moreFlag: res.data.content == "",
                 pages: res.data.pages,
                 noPostTitle: "作者会努力更新文章的 . . ."
@@ -484,26 +521,6 @@ Page({
     },
 
     /**
-     * 后台登入请求--接口调用成功处理
-     */
-    successAdminLogin: function (res, selfObj) {
-        var that = this;
-        // that.setData({
-        //     access_token: res.data.access_token,
-        //     refresh_token: res.data.refresh_token
-        // })
-        app.globalData.adminToken = res.data.access_token;
-        // clearTimeout(delay);
-        // console.warn(res)
-    },
-    /**
-     * 后台登入请求--接口调用失败处理
-     */
-    failAdminLogin: function (res, selfObj) {
-        console.error('failAdminLogin', res)
-    },
-
-    /**
      * 搜索文章模块
      */
     Search: function (e) {
@@ -515,7 +532,6 @@ Page({
         });
     },
     SearchSubmit: function (e) {
-        // console.warn(this.data.SearchContent);
 
         var that = this;
         that.setData({
@@ -525,14 +541,12 @@ Page({
         var urlPostList = app.globalData.url + '/api/content/posts/search?sort=createTime%2Cdesc&keyword=' + this.data.SearchContent;
         var token = app.globalData.token;
         var params = {};
-
-
         //@todo 搜索文章网络请求API数据
         request.requestPostApi(urlPostList, token, params, this, this.successSearch, this.failSearch);
     },
+
     successSearch: function (res, selfObj) {
         var that = this;
-        // console.warn(res.data.content);
         var list = res.data.content;
         for (let i = 0; i < list.length; ++i) {
             list[i].createTime = util.customFormatTime(list[i].createTime, 'Y.M.D');
@@ -567,7 +581,6 @@ Page({
     /**
      * 成功获取tags列表
      */
-
     successTags: function (res, selfObj) {
         var that = this;
         if (res.data) {
@@ -576,7 +589,10 @@ Page({
                     that.setData({
                         backgroundimgurl: item.thumbnail
                     })
-                    break;
+                } else if (('便民工具箱'.indexOf(item.name) > -1) && ('y'.indexOf(item.slug) > -1)) {
+                    that.setData({
+                        toolBox: true
+                    })
                 }
             }
         }
@@ -594,11 +610,24 @@ Page({
      */
     onShareAppMessage: function () {
         return {
-            title: this.data.BlogDesc,
+            title: app.globalData.BlogDesc,
             path: '/pages/index/index',
             imageUrl: 'https://jiaomao.solemountain.cn/upload/2022/06/%E4%BA%92%E8%81%94%E7%BD%91%E7%83%AD%E7%82%B9%E8%A6%81%E9%97%BB%E6%96%B0%E9%97%BB%E8%BF%BD%E8%B8%AA.png',
         }
     },
+
+
+    /**
+     * 用户点击右上角分享朋友圈
+     */
+    onShareTimeline: function () {
+        return {
+            title: app.globalData.BlogDesc,
+            path: '/pages/post/post?postId=' + this.data.postId,
+            imageUrl: 'https://s2.loli.net/2022/06/30/FruqtL7O1xIQBSP.png',
+        }
+    },
+
     hidePasswordModal(e) {
         this.setData({
             isPasswordShow: false
@@ -627,10 +656,10 @@ Page({
             scrollLeft: (e.currentTarget.dataset.id - 1) * 60
         });
     },
+
     inputPassword(e) {
         this.setData({
             password: e.detail.value
         })
     }
-
 })

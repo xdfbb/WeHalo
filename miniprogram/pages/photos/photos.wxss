@@ -1,7 +1,0 @@
-/* miniprogram/pages/photos.wxss */
-@import "../../colorui/animation.wxss";
-.add {
-  position:fixed;
-  bottom:5%;
-  left:80%;
-}
